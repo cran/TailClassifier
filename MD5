@@ -1,5 +1,4 @@
-872c408f1f004e0f54319740fcd59a76 *DESCRIPTION
-ec9df56ddf22d15697730b231b8eb07e *NAMESPACE
-e60f66195bcff5beb13a228dbd778d3a *R/TailClassifier.r
-310182fe985a9e42a7c0b149aafc2872 *inst/extdata/sample_data.csv
-06124ae6bb40850364781df2e990a73f *man/TailClassifier.Rd
+4f53e4b4640e54ea73e71718f3a59203 *DESCRIPTION
+4622ee954a9f0e88f8a48198b56ac05c *NAMESPACE
+51b1bc5137d53e9b9e41df1552725bc9 *R/TailClassifier.r
+8a3cbf944677e4cadf68e3dde2c0ce6c *man/TailClassifier.Rd

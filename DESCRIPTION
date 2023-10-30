@@ -1,18 +1,15 @@
 Package: TailClassifier
 Type: Package
-Title: Tail Classifier for Thick-Tailed Discrete Data
-Version: 0.1.0
+Title: Tail Classifier
+Version: 0.1.1
 Author: Jialin Zhang (JZ)
 Maintainer: Jialin Zhang (JZ) <jzhang@math.msstate.edu>
-Description: Function TailClassifier() in this package is a Tail-Classifier 
-    function. The function suggests one of the following types of tail for
-    your discrete data: 1) Power decaying tail; 2) Sub-exponential decaying 
-    tail; and 3) Near-exponential decaying tail.
+Description: The function TailClassifier() suggests one of the following types of tail for your discrete data: 1) Power decaying tail; 2) Sub-exponential decaying tail; and 3) Near-exponential decaying tail. The function also provides an estimate of the parameter for the classified-distribution as a reference.
 License: GPL-3
 Encoding: UTF-8
-RoxygenNote: 7.1.1
-Imports: readr
+RoxygenNote: 7.2.3
+Imports: ggplot2, cowplot, scales, stats, utils
 NeedsCompilation: no
-Packaged: 2021-06-16 14:34:33 UTC; jz505
+Packaged: 2023-10-30 04:50:17 UTC; jz505
 Repository: CRAN
-Date/Publication: 2021-06-17 07:50:11 UTC
+Date/Publication: 2023-10-30 05:00:02 UTC
