@@ -16,7 +16,7 @@ TailClassifier(
   Plot2_title = "Plot 2 of Heavy Tail Detection",
   Plot3_title = "Plot 3 of Heavy Tail Detection",
   C_Level = 0.95,
-  ConfidenceBand = T,
+  ConfidenceBand = TRUE,
   Plot_0_y_limit_lower_extend = 1.5,
   Plot_0_y_limit_upper_extend = 1.5,
   Plot_1_y_limit_lower_extend = 0.25,
@@ -24,7 +24,10 @@ TailClassifier(
   Plot_2_y_limit_lower_extend = 0.25,
   Plot_2_y_limit_upper_extend = 0.25,
   Plot_3_y_limit_lower_extend = 0.25,
-  Plot_3_y_limit_upper_extend = 0.25
+  Plot_3_y_limit_upper_extend = 0.25,
+  subtitle_size = 14,
+  axis_label_size = 12,
+  axis_ticks_size = 10
 )
 }
 \arguments{
@@ -65,6 +68,12 @@ TailClassifier(
 \item{Plot_3_y_limit_lower_extend}{Modify the y limit in Plot 2 to allow the confidence band to correctly display in different scenarios.}
 
 \item{Plot_3_y_limit_upper_extend}{Modify the y limit in Plot 3 to allow the confidence band to correctly display in different scenarios.}
+
+\item{subtitle_size}{Controls the subtitle font size.}
+
+\item{axis_label_size}{Controls the size of axis labels.}
+
+\item{axis_ticks_size}{Controls the size of axis tick numbers.}
 }
 \value{
 A statement on the type of tail.

@@ -1,4 +1,4 @@
-# The function is developed under R/4.3.1 Platform: x86_64-apple-darwin20 (64-bit).
+# The function is developed under R/4.4.1 Platform: x86_64-apple-darwin20 (64-bit).
 # Author/Maintainer: Jialin Zhang (JZ); jzhang (at) math.msstate.edu
 
 #  The function TailClassifier() suggests one of the following types of tail for your discrete data: 1) Power decaying tail; 2) Sub-exponential decaying tail; and 3) Near-exponential decaying tail. The function also provides an estimate of the parameter for the classified-distribution as a reference.
@@ -29,6 +29,9 @@
 #' @param Plot_2_y_limit_upper_extend Modify the y limit in Plot 1 to allow the confidence band to correctly display in different scenarios.
 #' @param Plot_3_y_limit_lower_extend Modify the y limit in Plot 2 to allow the confidence band to correctly display in different scenarios.
 #' @param Plot_3_y_limit_upper_extend Modify the y limit in Plot 3 to allow the confidence band to correctly display in different scenarios.
+#' @param subtitle_size Controls the subtitle font size.
+#' @param axis_label_size Controls the size of axis labels.
+#' @param axis_ticks_size Controls the size of axis tick numbers.
 
 #' @return A statement on the type of tail.
 #' @examples
@@ -67,7 +70,18 @@
 #' @importFrom stats qnorm
 #' @export
 
-TailClassifier <- function(sample_frequencies, v_left= 20, v_right= min(floor(sum(sample_frequencies)/20), sum(sample_frequencies[sample_frequencies > 1]) - 1), plot_lower = v_left, plot_upper = v_right, Plot0_title = "Plot 0 of Heavy Tail Detection \n \n", Plot1_title = "Plot 1 of Heavy Tail Detection", Plot2_title = "Plot 2 of Heavy Tail Detection", Plot3_title = "Plot 3 of Heavy Tail Detection", C_Level = 0.95, ConfidenceBand = T, Plot_0_y_limit_lower_extend = 1.5, Plot_0_y_limit_upper_extend = 1.5, Plot_1_y_limit_lower_extend = 0.25, Plot_1_y_limit_upper_extend = 0.25, Plot_2_y_limit_lower_extend = 0.25, Plot_2_y_limit_upper_extend = 0.25, Plot_3_y_limit_lower_extend = 0.25, Plot_3_y_limit_upper_extend = 0.25) {
+TailClassifier <- function(sample_frequencies, v_left= 20, v_right= min(floor(sum(sample_frequencies)/20), sum(sample_frequencies[sample_frequencies > 1]) - 1),
+                           plot_lower = v_left, plot_upper = v_right,
+                           Plot0_title = "Plot 0 of Heavy Tail Detection \n \n",
+                           Plot1_title = "Plot 1 of Heavy Tail Detection",
+                           Plot2_title = "Plot 2 of Heavy Tail Detection",
+                           Plot3_title = "Plot 3 of Heavy Tail Detection",
+                           C_Level = 0.95, ConfidenceBand = TRUE,
+                           Plot_0_y_limit_lower_extend = 1.5, Plot_0_y_limit_upper_extend = 1.5,
+                           Plot_1_y_limit_lower_extend = 0.25, Plot_1_y_limit_upper_extend = 0.25,
+                           Plot_2_y_limit_lower_extend = 0.25, Plot_2_y_limit_upper_extend = 0.25,
+                           Plot_3_y_limit_lower_extend = 0.25, Plot_3_y_limit_upper_extend = 0.25,
+                           subtitle_size = 14, axis_label_size = 12, axis_ticks_size = 10) {
 
   if(ConfidenceBand == T){alpha_geom = 0.25} else{alpha_geom = 0}
 
@@ -127,7 +141,11 @@ TailClassifier <- function(sample_frequencies, v_left= 20, v_right= min(floor(su
   margin_errors <- qnorm(1-(1-C_Level)/2)*(sigmas$V+1)*sigmas$Sigmas/sqrt(n)
   ConfidenceIntervals <- data.frame(v = sigmas$V, Lower = sigmas$V*(z1v[sigmas$V+1]-margin_errors), Upper = sigmas$V*(z1v[sigmas$V+1]+margin_errors), PointEstimate = sigmas$V*(z1v[sigmas$V+1]))
 
-
+  plot_theme <- theme(
+    plot.title = element_text(hjust = 0.5, size = subtitle_size),
+    axis.title = element_text(size = axis_label_size),
+    axis.text = element_text(size = axis_ticks_size)
+  )
 
   ## The four plots
   ## plot 0 is Tv ~ v; heavier than exponential tails converge to infinite, thinner than exponential tails converge to zero
@@ -136,8 +154,10 @@ TailClassifier <- function(sample_frequencies, v_left= 20, v_right= min(floor(su
   df_0$Upper <- ifelse(is.na(df_0$Upper), df_0$tv, df_0$Upper)
   df_0 <- df_0[-1,]
 
-  plot0 <- ggplot(df_0, aes(x=v, y=tv)) + theme_bw()  + xlab("v") + ylab(bquote(T[v])) + ylim((min(tv[plot_lower:plot_upper])) - Plot_0_y_limit_lower_extend,(max(tv[plot_lower:plot_upper])) + Plot_0_y_limit_upper_extend) + scale_x_continuous(limits = c(plot_lower, plot_upper), labels = ~., breaks = ~ c(scales::extended_breaks()(.x))) + ggtitle(Plot0_title) + theme(plot.title = element_text(hjust = 0.5)) + geom_line(na.rm=TRUE)+
-    geom_ribbon(aes(ymin=Lower,ymax=Upper), alpha=alpha_geom)
+  plot0 <- ggplot(df_0, aes(x=v, y=tv)) + theme_bw() + xlab("v") + ylab(bquote(T[v])) +
+    ylim((min(tv[plot_lower:plot_upper])) - Plot_0_y_limit_lower_extend,(max(tv[plot_lower:plot_upper])) + Plot_0_y_limit_upper_extend) +
+    scale_x_continuous(limits = c(plot_lower, plot_upper)) + ggtitle(Plot0_title) + plot_theme +
+    geom_line(na.rm=TRUE) + geom_ribbon(aes(ymin=Lower,ymax=Upper), alpha=alpha_geom)
 
   ## plot 1 is ln Tv ~ ln v; power decaying tails become linear; concave lines indicate tails are thinner than power decaying.
   log_v <- log(1:length(tv))[plot_lower:plot_upper]
@@ -152,7 +172,11 @@ TailClassifier <- function(sample_frequencies, v_left= 20, v_right= min(floor(su
   df_1$Upper <- ifelse(is.na(df_1$Upper), df_1$log_tv, df_1$Upper)
   df_1$PointEstimate <- ifelse(is.na(df_1$PointEstimate), df_1$log_tv, df_1$PointEstimate)
 
-  plot1 <- ggplot(df_1, aes(x=log_v, y=log_tv)) + theme_bw()  + xlab("v") + ylab(bquote(ln~T[v])) + ylim(floor(4*min(log_tv[plot_lower:plot_upper], na.rm = T))/4 - Plot_1_y_limit_lower_extend, floor(4*max(log_tv[plot_lower:plot_upper], na.rm = T))/4+Plot_1_y_limit_upper_extend) + scale_x_continuous(limits = c((log(plot_lower)), (log(plot_upper))), labels = ~floor(exp(.)), breaks = ~ c(scales::extended_breaks()(.x)), sec.axis=sec_axis(~., name = "ln v")) + ggtitle(Plot1_title) + theme(plot.title = element_text(hjust = 0.5)) + geom_line(na.rm=TRUE)+geom_ribbon(aes(ymin=Lower,ymax=Upper), alpha=alpha_geom)
+  plot1 <- ggplot(df_1, aes(x=log_v, y=log_tv)) + theme_bw() + xlab("v") + ylab(bquote(ln~T[v])) +
+    ylim(floor(4*min(log_tv[plot_lower:plot_upper], na.rm = TRUE))/4 - Plot_1_y_limit_lower_extend,
+         floor(4*max(log_tv[plot_lower:plot_upper], na.rm = TRUE))/4+Plot_1_y_limit_upper_extend) +
+    scale_x_continuous(limits = c((log(plot_lower)), (log(plot_upper))), labels = ~floor(exp(.)), breaks = ~ c(scales::extended_breaks()(.x)), sec.axis = sec_axis(~., name = "ln v")) + ggtitle(Plot1_title) + plot_theme +
+    geom_line(na.rm=TRUE) + geom_ribbon(aes(ymin=Lower,ymax=Upper), alpha=alpha_geom)
 
   ## plot 2 is ln Tv ~ ln ln v; sub-exp tails become linear; thinner than sub-exp tails are concave; heavier than sub-exp tails are convex.
   plot_lower <- max(2, plot_lower) # this is to avoid an undefined ln ln (1)
@@ -172,8 +196,11 @@ TailClassifier <- function(sample_frequencies, v_left= 20, v_right= min(floor(su
   df_2$PointEstimate <- ifelse(is.na(df_2$PointEstimate), df_2$log_tv, df_2$PointEstimate)
 
 
-  plot2 <- ggplot(df_2, aes(x=loglog_v, y=log_tv)) + theme_bw()  + xlab("v") + ylab(bquote(ln~T[v])) + ylim(floor(4*min(log_tv[plot_lower:plot_upper], na.rm = T))/4 - Plot_2_y_limit_lower_extend, floor(4*max(log_tv[plot_lower:plot_upper], na.rm = T))/4+Plot_2_y_limit_upper_extend) + scale_x_continuous(limits = c((log(log((plot_lower)))), (log(log(plot_upper)))), labels = ~floor(exp(exp(.))), breaks = ~ c(scales::extended_breaks()(.x)), sec.axis=sec_axis(~., name = "ln ln v")) + ggtitle(Plot2_title) + theme(plot.title = element_text(hjust = 0.5)) + geom_line(na.rm=TRUE)+
-    geom_ribbon(aes(ymin=Lower,ymax=Upper), alpha=alpha_geom)
+  plot2 <- ggplot(df_2, aes(x=loglog_v, y=log_tv)) + theme_bw() + xlab("v") + ylab(bquote(ln~T[v])) +
+    ylim(floor(4*min(log_tv[plot_lower:plot_upper], na.rm = TRUE))/4 - Plot_2_y_limit_lower_extend,
+         floor(4*max(log_tv[plot_lower:plot_upper], na.rm = TRUE))/4+Plot_2_y_limit_upper_extend) +
+    scale_x_continuous(limits = c((log(log((plot_lower)))), (log(log(plot_upper)))), labels = ~floor(exp(exp(.))), breaks = ~ c(scales::extended_breaks()(.x)), sec.axis = sec_axis(~., name = "ln ln v")) + ggtitle(Plot2_title) + plot_theme +
+    geom_line(na.rm=TRUE) + geom_ribbon(aes(ymin=Lower,ymax=Upper), alpha=alpha_geom)
 
   ## plot 3 is ln Tv ~ ln ln ln v; near-exp tails become linear, thinner than near-exp tails are concave; heavier than near-exp tails are convex.
   plot_lower <- max(3, plot_lower)
@@ -192,12 +219,13 @@ TailClassifier <- function(sample_frequencies, v_left= 20, v_right= min(floor(su
   df_3$Upper <- ifelse(is.na(df_3$Upper), df_3$log_tv, df_3$Upper)
   df_3$PointEstimate <- ifelse(is.na(df_3$PointEstimate), df_3$log_tv, df_3$PointEstimate)
 
-  plot3 <- ggplot(df_3[plot_lower:plot_upper,], aes(x=logloglog_v, y=log_tv)) + theme_bw()  + xlab("v") + ylab(bquote(ln~T[v])) + ylim(floor(4*min(log_tv[plot_lower:plot_upper], na.rm = T))/4 - Plot_3_y_limit_lower_extend, floor(4*max(log_tv[plot_lower:plot_upper], na.rm = T))/4+Plot_3_y_limit_upper_extend) + scale_x_continuous(limits = c((log(log(log((plot_lower))))), log(log(log(plot_upper)))), labels = ~floor(exp(exp(exp(.)))), breaks = ~ c(scales::extended_breaks()(.x)), sec.axis=sec_axis(~., name = "ln ln ln v")) + ggtitle(Plot3_title) + theme(plot.title = element_text(hjust = 0.5)) + geom_line(na.rm=TRUE) +
-    geom_ribbon(aes(ymin=Lower,ymax=Upper), alpha=alpha_geom)
+  plot3 <- ggplot(df_3, aes(x=logloglog_v, y=log_tv)) + theme_bw() + xlab("v") + ylab(bquote(ln~T[v])) +
+    ylim(floor(4*min(log_tv[plot_lower:plot_upper], na.rm = TRUE))/4 - Plot_3_y_limit_lower_extend,
+         floor(4*max(log_tv[plot_lower:plot_upper], na.rm = TRUE))/4+Plot_3_y_limit_upper_extend) +
+    scale_x_continuous(limits = c((log(log(log((plot_lower))))), log(log(log(plot_upper)))), labels = ~floor(exp(exp(exp(.)))), breaks = ~ c(scales::extended_breaks()(.x)), sec.axis = sec_axis(~., name = "ln ln ln v")) + ggtitle(Plot3_title) + plot_theme +
+    geom_line(na.rm=TRUE) + geom_ribbon(aes(ymin=Lower,ymax=Upper), alpha=alpha_geom)
 
   final_plot <- structure(list(plot0, plot1, plot2, plot3), class = "multiplot")
-
-
 
   lwr_1 <- max(0, 1/((ConfidenceIntervals1$Upper[which(ConfidenceIntervals1$log_v==log(v_right))] - ConfidenceIntervals1$Upper[which(ConfidenceIntervals1$log_v==log(v_left))])/(log(v_right) - log(v_left))))
 
